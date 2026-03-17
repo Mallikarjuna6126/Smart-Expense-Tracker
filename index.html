@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Expense Tracker Pro</title>
+    <meta name="description" content="A professional expense tracker with categories, charts, and dark mode.">
+    <!-- Google Fonts -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h2>Expense Tracker <span class="badge">Pro</span></h2>
+            <div class="header-actions">
+                <button id="theme-toggle" class="icon-btn" title="Toggle Theme">
+                    <i data-lucide="sun" id="theme-icon"></i>
+                </button>
+                <button id="export-json-btn" class="icon-btn" title="Export JSON">
+                    <i data-lucide="file-json"></i>
+                </button>
+                <button id="export-btn" class="icon-btn" title="Export CSV">
+                    <i data-lucide="download"></i>
+                </button>
+                <button id="clear-data-btn" class="icon-btn delete-all-btn" title="Clear All Data">
+                    <i data-lucide="trash-2"></i>
+                </button>
+            </div>
+        </header>
+
+        <div class="main-grid">
+            <!-- Summary Sidebar -->
+            <div class="summary-section">
+                <div class="glass-panel balance-card">
+                    <p class="balance-label">Total Balance</p>
+                    <h1 id="balance">$0.00</h1>
+                    <div class="monthly-stat">
+                        <small>This Month:</small>
+                        <span id="monthly-total">$0.00</span>
+                    </div>
+                </div>
+
+                <div class="inc-exp-container">
+                    <div class="glass-panel inc-exp-card">
+                        <div class="icon-circle plus">
+                            <i data-lucide="trending-up"></i>
+                        </div>
+                        <div>
+                            <h4>Income</h4>
+                            <p id="money-plus" class="money plus">+$0.00</p>
+                        </div>
+                    </div>
+                    <div class="glass-panel inc-exp-card">
+                        <div class="icon-circle minus">
+                            <i data-lucide="trending-down"></i>
+                        </div>
+                        <div>
+                            <h4>Expense</h4>
+                            <p id="money-minus" class="money minus">-$0.00</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-panel chart-container">
+                    <h3>Distribution</h3>
+                    <canvas id="expenseChart"></canvas>
+                </div>
+
+                <div class="glass-panel chart-container">
+                    <h3>Monthly Trend</h3>
+                    <canvas id="trendChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Transaction Controls -->
+            <div class="action-section">
+                <div class="glass-panel">
+                    <h3>Add New Transaction</h3>
+                    <form id="form">
+                        <div class="form-row">
+                            <div class="form-control">
+                                <label for="text">Description</label>
+                                <input type="text" id="text" placeholder="What was this for?" required />
+                            </div>
+                            <div class="form-control">
+                                <label for="amount">Amount</label>
+                                <input type="number" id="amount" step="0.01" placeholder="0.00" required />
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-control">
+                                <label for="category">Category</label>
+                                <select id="category" required>
+                                    <option value="Food">🍔 Food</option>
+                                    <option value="Travel">🚗 Travel</option>
+                                    <option value="Shopping">🛒 Shopping</option>
+                                    <option value="Salary">💰 Salary</option>
+                                    <option value="Entertainment">🎬 Entertainment</option>
+                                    <option value="Utilities">⚡ Utilities</option>
+                                    <option value="Others">📁 Others</option>
+                                </select>
+                            </div>
+                            <div class="form-control">
+                                <label for="date">Date</label>
+                                <input type="date" id="date" required />
+                            </div>
+                        </div>
+                        <button class="btn primary-btn">
+                            <i data-lucide="plus-circle"></i> Add Transaction
+                        </button>
+                    </form>
+                </div>
+
+                <div class="glass-panel list-container">
+                    <div class="list-header">
+                        <h3>History</h3>
+                        <div class="filters">
+                            <button class="filter-btn active" data-filter="all">All</button>
+                            <button class="filter-btn" data-filter="income">Income</button>
+                            <button class="filter-btn" data-filter="expense">Expense</button>
+                        </div>
+                    </div>
+                    <ul id="list" class="list">
+                        <!-- Transactions added dynamically -->
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Modal (Optional but good for UX) -->
+    <div id="edit-modal" class="modal">
+        <div class="modal-content glass-panel">
+            <h3>Edit Transaction</h3>
+            <form id="edit-form">
+                <input type="hidden" id="edit-id">
+                <div class="form-row">
+                    <div class="form-control">
+                        <label>Description</label>
+                        <input type="text" id="edit-text" required />
+                    </div>
+                    <div class="form-control">
+                        <label>Amount</label>
+                        <input type="number" id="edit-amount" step="0.01" required />
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-control">
+                        <label>Category</label>
+                        <select id="edit-category">
+                            <option value="Food">🍔 Food</option>
+                            <option value="Travel">🚗 Travel</option>
+                            <option value="Shopping">🛒 Shopping</option>
+                            <option value="Salary">💰 Salary</option>
+                            <option value="Entertainment">🎬 Entertainment</option>
+                            <option value="Utilities">⚡ Utilities</option>
+                            <option value="Others">📁 Others</option>
+                        </select>
+                    </div>
+                    <div class="form-control">
+                        <label>Date</label>
+                        <input type="date" id="edit-date" required />
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn secondary-btn" id="close-modal">Cancel</button>
+                    <button type="submit" class="btn primary-btn">Update</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+    </script>
+</body>
+</html>
